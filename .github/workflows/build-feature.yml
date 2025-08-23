@@ -1,4 +1,4 @@
-name: build feature branches
+name: Build Pull Request
 
 on:
   push:
@@ -48,6 +48,20 @@ jobs:
 
       - name: Build with Maven
         run: ./mvnw -T 1C -B --no-transfer-progress verify -P coverage
+
+      - name: Upload surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: |
+            **/target/surefire-reports/*.xml
+            **/target/surefire-reports/*.txt
+            **/target/surefire-reports/*.dump*
+            **/target/surefire-reports/*.out
+            **/target/surefire-reports/*.err
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Build documentation with Maven
         run: ./mvnw -T 1C -B --no-transfer-progress site
