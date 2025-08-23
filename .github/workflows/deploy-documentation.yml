@@ -24,32 +24,29 @@ jobs:
         with:
           ref: refs/tags/${{ github.event.inputs.releaseversion }}
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-node-modules
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          node-version: 'lts/*'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
 
       - name: Set projects Maven version to GitHub Action GUI set version
         run: ./mvnw versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}" --no-transfer-progress
 
       - name: Build with Maven
-        run: ./mvnw -B --no-transfer-progress install -DskipTests
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./mvnw -T 1C -B --no-transfer-progress package -DskipTests
+
+      - name: Build documentation with Maven
+        run: ./mvnw -T 1C -B --no-transfer-progress  -pl spring-boot-admin-docs site
 
       - name: Deploy documentation to GitHub Pages for version ${{ github.event.inputs.releaseversion }}
         uses: JamesIves/github-pages-deploy-action@v4.7.3

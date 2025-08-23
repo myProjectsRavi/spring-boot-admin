@@ -18,28 +18,23 @@ jobs:
 
       - uses: actions/checkout@v5
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-node-modules
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
+          node-version: 'lts/*'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
 
-      # since we also build on Windows Powershell, we need to add a space between -D maven.javadoc.skip=true
-      # otherwise the build will fail https://stackoverflow.com/questions/38051787/maven-javadoc-skip-true-throws-an-error
       - name: Build with Maven
-        run: |
-          ./mvnw -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+        run: ./mvnw -T 1C -B --no-transfer-progress verify -P coverage
 
       - uses: codecov/codecov-action@v5
         with:
@@ -52,27 +47,23 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-node-modules
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          node-version: 'lts/*'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
 
       - name: Publish SNAPSHOT version to GitHub Packages (we can skip tests, since we only deploy, if the build workflow succeeded)
-        run: ./mvnw -B --no-transfer-progress deploy -DskipTests
+        run: ./mvnw -T 1C -B --no-transfer-progress deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
