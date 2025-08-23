@@ -47,7 +47,7 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
 
       - name: Build with Maven
-        run: ./mvnw -T 1C -B --no-transfer-progress verify -P coverage
+        run: ./mvnw -B --no-transfer-progress verify -P coverage
 
       - name: Upload surefire reports
         if: always()
@@ -64,7 +64,7 @@ jobs:
           retention-days: 14
 
       - name: Build documentation with Maven
-        run: ./mvnw -T 1C -B --no-transfer-progress site
+        run: ./mvnw -B --no-transfer-progress site
 
       - uses: codecov/codecov-action@v5
         with:
