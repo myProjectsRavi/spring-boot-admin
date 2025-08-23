@@ -79,6 +79,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <charset>${project.reporting.outputEncoding}</charset>
+                        <docencoding>${project.reporting.outputEncoding}</docencoding>
                         <doclint>none</doclint>
                     </configuration>
                 </plugin>
